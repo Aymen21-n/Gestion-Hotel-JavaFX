@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" spacing="10">
+    <padding>
+        <Insets top="16" right="16" bottom="16" left="16"/>
+    </padding>
+    <Label text="Gestion Clients" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+    <TableView prefHeight="200">
+        <columns>
+            <TableColumn text="CIN" />
+            <TableColumn text="Nom" />
+            <TableColumn text="Prénom" />
+            <TableColumn text="Téléphone" />
+            <TableColumn text="Email" />
+        </columns>
+    </TableView>
+    <VBox spacing="6">
+        <Button text="Ajouter" />
+        <Button text="Modifier" />
+        <Button text="Supprimer" />
+    </VBox>
+</VBox>
