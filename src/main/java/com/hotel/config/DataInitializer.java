@@ -9,6 +9,7 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public final class DataInitializer {
     private DataInitializer() {
@@ -37,6 +38,8 @@ public final class DataInitializer {
 
                 Spa spa = new Spa("Spa Zen", "09:00", "20:00", 5, "Massage, Hammam");
                 Restauration restauration = new Restauration("Restaurant Panorama", "12:00", "23:00", "Méditerranéenne", 120, "Menu du jour");
+                spa.setPrix(90.0);
+                restauration.setPrix(45.0);
                 hotel.addService(spa);
                 hotel.addService(restauration);
 
@@ -51,9 +54,11 @@ public final class DataInitializer {
                 clientRepository.save(client2);
 
                 Reservation reservation = new Reservation(LocalDate.now().plusDays(1), LocalDate.now().plusDays(4),
-                        "Séjour", ReservationStatut.EN_COURS);
+                        null, ReservationStatut.CONFIRMEE);
                 reservation.setChambre(chambre1);
                 reservation.setClient(client1);
+                reservation.setModePaiement("CARTE");
+                reservation.setServices(List.of(spa));
                 session.persist(reservation);
 
                 Facture facture = Facture.genererFacture(reservation, "Carte bancaire");

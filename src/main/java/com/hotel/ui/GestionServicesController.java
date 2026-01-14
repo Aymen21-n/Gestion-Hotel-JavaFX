@@ -22,6 +22,8 @@ public class GestionServicesController {
     @FXML
     private TableColumn<Service, String> fermetureColumn;
     @FXML
+    private TableColumn<Service, Number> prixColumn;
+    @FXML
     private TableColumn<Service, String> typeColumn;
 
     private final ServiceHotelierService serviceHotelierService = new ServiceHotelierService();
@@ -32,6 +34,7 @@ public class GestionServicesController {
         nomColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getNomService()));
         ouvertureColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getHoraireOuverture()));
         fermetureColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getHoraireFermeture()));
+        prixColumn.setCellValueFactory(data -> new javafx.beans.property.SimpleDoubleProperty(data.getValue().getPrix()));
         typeColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getClass().getSimpleName()));
         refreshTable();
     }
@@ -102,6 +105,7 @@ public class GestionServicesController {
         TextField nomField = new TextField(service != null ? service.getNomService() : "");
         TextField ouvertureField = new TextField(service != null ? service.getHoraireOuverture() : "");
         TextField fermetureField = new TextField(service != null ? service.getHoraireFermeture() : "");
+        TextField prixField = new TextField(service != null ? String.valueOf(service.getPrix()) : "");
 
         TextField nbSallesMassageField = new TextField();
         TextField typesSoinsField = new TextField();
@@ -168,22 +172,23 @@ public class GestionServicesController {
         grid.addRow(1, new Label("Nom"), nomField);
         grid.addRow(2, new Label("Ouverture"), ouvertureField);
         grid.addRow(3, new Label("Fermeture"), fermetureField);
-        grid.addRow(4, new Label("Hôtel"), hotelBox);
-        grid.addRow(5, new Label("Nb salles massage"), nbSallesMassageField);
-        grid.addRow(6, new Label("Types de soins"), typesSoinsField);
-        grid.addRow(7, new Label("Type cuisine"), typeCuisineField);
-        grid.addRow(8, new Label("Capacité"), capaciteField);
-        grid.addRow(9, new Label("Menu"), menuField);
-        grid.addRow(10, new Label("Profondeur"), profondeurField);
-        grid.addRow(11, estChauffeeBox);
-        grid.addRow(12, new Label("Superficie"), superficieField);
-        grid.addRow(13, new Label("Nb appareils"), nbAppareilsField);
-        grid.addRow(14, entraineurBox);
-        grid.addRow(15, new Label("Horaires cours"), horairesCoursField);
-        grid.addRow(16, new Label("Nom DJ"), nomDjField);
-        grid.addRow(17, new Label("Style musical"), styleMusicalField);
-        grid.addRow(18, new Label("Capacité club"), capaciteClubField);
-        grid.addRow(19, new Label("Âge minimum"), ageMinimumField);
+        grid.addRow(4, new Label("Prix"), prixField);
+        grid.addRow(5, new Label("Hôtel"), hotelBox);
+        grid.addRow(6, new Label("Nb salles massage"), nbSallesMassageField);
+        grid.addRow(7, new Label("Types de soins"), typesSoinsField);
+        grid.addRow(8, new Label("Type cuisine"), typeCuisineField);
+        grid.addRow(9, new Label("Capacité"), capaciteField);
+        grid.addRow(10, new Label("Menu"), menuField);
+        grid.addRow(11, new Label("Profondeur"), profondeurField);
+        grid.addRow(12, estChauffeeBox);
+        grid.addRow(13, new Label("Superficie"), superficieField);
+        grid.addRow(14, new Label("Nb appareils"), nbAppareilsField);
+        grid.addRow(15, entraineurBox);
+        grid.addRow(16, new Label("Horaires cours"), horairesCoursField);
+        grid.addRow(17, new Label("Nom DJ"), nomDjField);
+        grid.addRow(18, new Label("Style musical"), styleMusicalField);
+        grid.addRow(19, new Label("Capacité club"), capaciteClubField);
+        grid.addRow(20, new Label("Âge minimum"), ageMinimumField);
         dialog.getDialogPane().setContent(grid);
 
         dialog.setResultConverter(button -> {
@@ -236,6 +241,7 @@ public class GestionServicesController {
                         club.setAgeMinimum(parseInt(ageMinimumField.getText()));
                     }
                 }
+                result.setPrix(parseDouble(prixField.getText()));
                 result.setHotel(hotelBox.getValue());
                 return result;
             }

@@ -14,7 +14,8 @@ public class ReservationRepository extends BaseRepository<Reservation, Long> {
     public boolean hasDateConflict(Long chambreNumero, LocalDate debut, LocalDate fin) {
         Long count = session.createQuery(
                         "select count(r) from Reservation r where r.chambre.numero = :numero " +
-                                "and r.dateFin > :debut and r.dateDebut < :fin", Long.class)
+                                "and r.dateFin > :debut and r.dateDebut < :fin " +
+                                "and r.statut <> com.hotel.domain.ReservationStatut.ANNULEE", Long.class)
                 .setParameter("numero", chambreNumero)
                 .setParameter("debut", debut)
                 .setParameter("fin", fin)
@@ -24,7 +25,21 @@ public class ReservationRepository extends BaseRepository<Reservation, Long> {
 
     public List<Reservation> findAllWithDetails() {
         return session.createQuery(
-                        "select r from Reservation r left join fetch r.client left join fetch r.chambre",
+                        "select distinct r from Reservation r " +
+                                "left join fetch r.client " +
+                                "left join fetch r.chambre " +
+                                "left join fetch r.services",
+                        Reservation.class)
+                .list();
+    }
+
+    public List<Reservation> findConfirmableForFacture() {
+        return session.createQuery(
+                        "select distinct r from Reservation r " +
+                                "left join fetch r.client " +
+                                "left join fetch r.facture " +
+                                "where r.statut = com.hotel.domain.ReservationStatut.CONFIRMEE " +
+                                "and r.facture is null",
                         Reservation.class)
                 .list();
     }

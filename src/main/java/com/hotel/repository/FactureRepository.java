@@ -12,7 +12,11 @@ public class FactureRepository extends BaseRepository<Facture, Long> {
 
     public Facture findByReservationId(Long reservationId) {
         return session.createQuery(
-                        "select f from Facture f join fetch f.reservation r left join fetch r.client where r.idReservation = :id",
+                        "select f from Facture f join fetch f.reservation r " +
+                                "left join fetch r.client " +
+                                "left join fetch r.chambre " +
+                                "left join fetch r.services " +
+                                "where r.idReservation = :id",
                         Facture.class)
                 .setParameter("id", reservationId)
                 .uniqueResult();
@@ -20,7 +24,10 @@ public class FactureRepository extends BaseRepository<Facture, Long> {
 
     public List<Facture> findAllWithReservation() {
         return session.createQuery(
-                        "select f from Facture f join fetch f.reservation r left join fetch r.client",
+                        "select distinct f from Facture f join fetch f.reservation r " +
+                                "left join fetch r.client " +
+                                "left join fetch r.chambre " +
+                                "left join fetch r.services",
                         Facture.class)
                 .list();
     }

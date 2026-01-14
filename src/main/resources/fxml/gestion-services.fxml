@@ -19,6 +19,7 @@
             <TableColumn fx:id="nomColumn" text="Nom" />
             <TableColumn fx:id="ouvertureColumn" text="Ouverture" />
             <TableColumn fx:id="fermetureColumn" text="Fermeture" />
+            <TableColumn fx:id="prixColumn" text="Prix" />
             <TableColumn fx:id="typeColumn" text="Type" />
         </columns>
     </TableView>

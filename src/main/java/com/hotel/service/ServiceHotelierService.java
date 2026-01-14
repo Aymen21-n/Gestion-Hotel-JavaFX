@@ -39,6 +39,7 @@ public class ServiceHotelierService {
         ValidationUtils.requireNotBlank(service.getNomService(), "Le nom du service est obligatoire.");
         ValidationUtils.requireNotBlank(service.getHoraireOuverture(), "L'horaire d'ouverture est obligatoire.");
         ValidationUtils.requireNotBlank(service.getHoraireFermeture(), "L'horaire de fermeture est obligatoire.");
+        ValidationUtils.requirePositive(service.getPrix(), "Le prix du service doit être supérieur à 0.");
     }
 
     private void executeInTransaction(TransactionConsumer consumer) {

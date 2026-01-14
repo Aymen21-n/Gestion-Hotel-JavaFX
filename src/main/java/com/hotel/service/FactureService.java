@@ -43,6 +43,9 @@ public class FactureService {
         if (reservation == null) {
             throw new IllegalArgumentException("Réservation introuvable.");
         }
+        if (reservation.getStatut() != com.hotel.domain.ReservationStatut.CONFIRMEE) {
+            throw new IllegalArgumentException("La facture ne peut être générée que pour une réservation confirmée.");
+        }
         Facture facture = Facture.genererFacture(reservation, finalMode);
         factureRepository.save(facture);
         return facture;

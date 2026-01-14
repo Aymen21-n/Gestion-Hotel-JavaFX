@@ -9,16 +9,24 @@ import com.hotel.repository.FactureRepository;
 import com.hotel.repository.ChambreRepository;
 import com.hotel.repository.ClientRepository;
 import com.hotel.repository.ReservationRepository;
+import com.hotel.repository.ServiceRepository;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ReservationService {
     public List<Reservation> findAll() {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             return new ReservationRepository(session).findAllWithDetails();
+        }
+    }
+
+    public List<Reservation> findConfirmableForFacture() {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            return new ReservationRepository(session).findConfirmableForFacture();
         }
     }
 
@@ -33,8 +41,7 @@ public class ReservationService {
     }
 
     public Reservation createReservation(String clientCin, Integer chambreNumero, LocalDate dateDebut,
-                                         LocalDate dateFin, String typeReservation) {
-        ValidationUtils.requireNotBlank(typeReservation, "Le type de réservation est obligatoire.");
+                                         LocalDate dateFin, String modePaiement, List<Long> serviceIds) {
         Transaction transaction = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
@@ -47,9 +54,11 @@ public class ReservationService {
                 throw new IllegalArgumentException("Chambre introuvable.");
             }
 
-            Reservation reservation = new Reservation(dateDebut, dateFin, typeReservation, ReservationStatut.EN_COURS);
+            Reservation reservation = new Reservation(dateDebut, dateFin, null, ReservationStatut.EN_COURS);
             reservation.setClient(client);
             reservation.setChambre(chambre);
+            reservation.setModePaiement(modePaiement);
+            reservation.setServices(loadServices(session, serviceIds));
             validateReservation(reservation, session);
 
             new ReservationRepository(session).save(reservation);
@@ -103,13 +112,16 @@ public class ReservationService {
             if (reservation.getStatut() == ReservationStatut.CONFIRMEE) {
                 throw new IllegalArgumentException("La réservation est déjà confirmée.");
             }
+            if (reservation.getStatut() == ReservationStatut.ANNULEE) {
+                throw new IllegalArgumentException("La réservation est annulée.");
+            }
             validateReservation(reservation, session);
             reservation.setStatut(ReservationStatut.CONFIRMEE);
             repository.update(reservation);
 
             FactureService factureService = new FactureService();
             if (new FactureRepository(session).findByReservationId(reservationId) == null) {
-                factureService.generateForReservation(session, reservationId, "ESPECES");
+                factureService.generateForReservation(session, reservationId, reservation.getModePaiement());
             }
             transaction.commit();
         } catch (Exception exception) {
@@ -130,11 +142,27 @@ public class ReservationService {
         if (reservation.getChambre() == null) {
             throw new IllegalArgumentException("Une chambre doit être sélectionnée.");
         }
+        ValidationUtils.requireNotBlank(reservation.getModePaiement(), "Le mode de paiement est obligatoire.");
 
         ReservationRepository repository = new ReservationRepository(session);
         if (repository.hasDateConflict(reservation.getChambre().getNumero().longValue(),
                 reservation.getDateDebut(), reservation.getDateFin())) {
             throw new IllegalArgumentException("La chambre est déjà réservée pour cette période.");
         }
+    }
+
+    private List<com.hotel.domain.Service> loadServices(Session session, List<Long> serviceIds) {
+        if (serviceIds == null || serviceIds.isEmpty()) {
+            return new ArrayList<>();
+        }
+        ServiceRepository repository = new ServiceRepository(session);
+        List<com.hotel.domain.Service> services = new ArrayList<>();
+        for (Long id : serviceIds) {
+            com.hotel.domain.Service service = repository.findById(id);
+            if (service != null) {
+                services.add(service);
+            }
+        }
+        return services;
     }
 }

@@ -15,6 +15,7 @@ public class Reservation {
     private LocalDate dateDebut;
     private LocalDate dateFin;
     private String typeReservation;
+    private String modePaiement;
 
     @Enumerated(EnumType.STRING)
     private ReservationStatut statut;
@@ -29,6 +30,12 @@ public class Reservation {
 
     @OneToOne(mappedBy = "reservation", cascade = CascadeType.ALL)
     private Facture facture;
+
+    @ManyToMany
+    @JoinTable(name = "reservation_services",
+            joinColumns = @JoinColumn(name = "reservation_id"),
+            inverseJoinColumns = @JoinColumn(name = "service_id"))
+    private java.util.List<Service> services = new java.util.ArrayList<>();
 
     public Reservation() {
     }
@@ -45,7 +52,11 @@ public class Reservation {
             return 0.0;
         }
         long nbNuits = ChronoUnit.DAYS.between(dateDebut, dateFin);
-        return nbNuits * chambre.getPrixParNuit();
+        double montant = nbNuits * chambre.getPrixParNuit();
+        if (services != null) {
+            montant += services.stream().mapToDouble(Service::getPrix).sum();
+        }
+        return montant;
     }
 
     public Long getIdReservation() {
@@ -74,6 +85,14 @@ public class Reservation {
 
     public void setTypeReservation(String typeReservation) {
         this.typeReservation = typeReservation;
+    }
+
+    public String getModePaiement() {
+        return modePaiement;
+    }
+
+    public void setModePaiement(String modePaiement) {
+        this.modePaiement = modePaiement;
     }
 
     public ReservationStatut getStatut() {
@@ -106,5 +125,13 @@ public class Reservation {
 
     public void setFacture(Facture facture) {
         this.facture = facture;
+    }
+
+    public java.util.List<Service> getServices() {
+        return services;
+    }
+
+    public void setServices(java.util.List<Service> services) {
+        this.services = services;
     }
 }

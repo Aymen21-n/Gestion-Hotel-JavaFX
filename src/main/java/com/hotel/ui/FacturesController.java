@@ -81,7 +81,7 @@ public class FacturesController {
         dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
 
         ComboBox<Reservation> reservationBox = new ComboBox<>();
-        List<Reservation> reservations = reservationService.findAll();
+        List<Reservation> reservations = reservationService.findConfirmableForFacture();
         reservationBox.getItems().setAll(reservations);
         reservationBox.setConverter(new StringConverter<>() {
             @Override

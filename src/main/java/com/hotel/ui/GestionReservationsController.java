@@ -3,9 +3,11 @@ package com.hotel.ui;
 import com.hotel.domain.Chambre;
 import com.hotel.domain.Client;
 import com.hotel.domain.Reservation;
+import com.hotel.domain.Service;
 import com.hotel.service.ChambreService;
 import com.hotel.service.ClientService;
 import com.hotel.service.ReservationService;
+import com.hotel.service.ServiceHotelierService;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -38,6 +40,7 @@ public class GestionReservationsController {
     private final ReservationService reservationService = new ReservationService();
     private final ClientService clientService = new ClientService();
     private final ChambreService chambreService = new ChambreService();
+    private final ServiceHotelierService serviceHotelierService = new ServiceHotelierService();
 
     @FXML
     private void initialize() {
@@ -56,7 +59,8 @@ public class GestionReservationsController {
         result.ifPresent(reservation -> {
             try {
                 reservationService.createReservation(reservation.getClient().getCin(), reservation.getChambre().getNumero(),
-                        reservation.getDateDebut(), reservation.getDateFin(), reservation.getTypeReservation());
+                        reservation.getDateDebut(), reservation.getDateFin(), reservation.getModePaiement(),
+                        reservation.getServices().stream().map(Service::getId).toList());
                 refreshTable();
                 showAlert(Alert.AlertType.INFORMATION, "Succès", "Réservation créée.");
             } catch (Exception exception) {
@@ -147,7 +151,11 @@ public class GestionReservationsController {
 
         DatePicker debutPicker = new DatePicker();
         DatePicker finPicker = new DatePicker();
-        TextField typeField = new TextField();
+        TextField modePaiementField = new TextField();
+
+        ListView<Service> serviceList = new ListView<>();
+        serviceList.getItems().setAll(serviceHotelierService.findAll());
+        serviceList.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
         GridPane grid = new GridPane();
         grid.setHgap(10);
@@ -156,7 +164,8 @@ public class GestionReservationsController {
         grid.addRow(1, new Label("Chambre"), chambreBox);
         grid.addRow(2, new Label("Date début"), debutPicker);
         grid.addRow(3, new Label("Date fin"), finPicker);
-        grid.addRow(4, new Label("Type"), typeField);
+        grid.addRow(4, new Label("Mode de paiement"), modePaiementField);
+        grid.addRow(5, new Label("Services"), serviceList);
         dialog.getDialogPane().setContent(grid);
 
         dialog.setResultConverter(button -> {
@@ -166,7 +175,8 @@ public class GestionReservationsController {
                 reservation.setChambre(chambreBox.getValue());
                 reservation.setDateDebut(debutPicker.getValue());
                 reservation.setDateFin(finPicker.getValue());
-                reservation.setTypeReservation(typeField.getText());
+                reservation.setModePaiement(modePaiementField.getText());
+                reservation.setServices(serviceList.getSelectionModel().getSelectedItems());
                 return reservation;
             }
             return null;

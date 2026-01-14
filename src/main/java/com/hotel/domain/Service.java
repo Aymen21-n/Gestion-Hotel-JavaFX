@@ -15,6 +15,7 @@ public abstract class Service {
     private String nomService;
     private String horaireOuverture;
     private String horaireFermeture;
+    private double prix;
 
     @ManyToOne
     @JoinColumn(name = "hotel_id")
@@ -55,6 +56,14 @@ public abstract class Service {
 
     public void setHoraireFermeture(String horaireFermeture) {
         this.horaireFermeture = horaireFermeture;
+    }
+
+    public double getPrix() {
+        return prix;
+    }
+
+    public void setPrix(double prix) {
+        this.prix = prix;
     }
 
     public Hotel getHotel() {
