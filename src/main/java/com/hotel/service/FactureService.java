@@ -13,25 +13,15 @@ import java.util.List;
 public class FactureService {
     public List<Facture> findAll() {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            return new FactureRepository(session).findAll();
+            return new FactureRepository(session).findAllWithReservation();
         }
     }
 
-    public Facture generateFacture(Long reservationId, String modePaiement) {
-        ValidationUtils.requireNotBlank(modePaiement, "Le mode de paiement est obligatoire.");
+    public Facture generateForReservation(Long reservationId, String modePaiement) {
         Transaction transaction = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             transaction = session.beginTransaction();
-            ReservationRepository reservationRepository = new ReservationRepository(session);
-            Reservation reservation = reservationRepository.findById(reservationId);
-            if (reservation == null) {
-                throw new IllegalArgumentException("Réservation introuvable.");
-            }
-            if (reservation.getFacture() != null) {
-                return reservation.getFacture();
-            }
-            Facture facture = Facture.genererFacture(reservation, modePaiement);
-            new FactureRepository(session).save(facture);
+            Facture facture = generateForReservation(session, reservationId, modePaiement);
             transaction.commit();
             return facture;
         } catch (Exception exception) {
@@ -40,5 +30,21 @@ public class FactureService {
             }
             throw exception;
         }
+    }
+
+    public Facture generateForReservation(Session session, Long reservationId, String modePaiement) {
+        String finalMode = (modePaiement == null || modePaiement.isBlank()) ? "ESPECES" : modePaiement;
+        FactureRepository factureRepository = new FactureRepository(session);
+        Facture existing = factureRepository.findByReservationId(reservationId);
+        if (existing != null) {
+            return existing;
+        }
+        Reservation reservation = new ReservationRepository(session).findById(reservationId);
+        if (reservation == null) {
+            throw new IllegalArgumentException("Réservation introuvable.");
+        }
+        Facture facture = Facture.genererFacture(reservation, finalMode);
+        factureRepository.save(facture);
+        return facture;
     }
 }

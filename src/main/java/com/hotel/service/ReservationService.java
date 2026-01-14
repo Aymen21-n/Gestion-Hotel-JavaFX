@@ -5,6 +5,7 @@ import com.hotel.domain.Chambre;
 import com.hotel.domain.Client;
 import com.hotel.domain.Reservation;
 import com.hotel.domain.ReservationStatut;
+import com.hotel.repository.FactureRepository;
 import com.hotel.repository.ChambreRepository;
 import com.hotel.repository.ClientRepository;
 import com.hotel.repository.ReservationRepository;
@@ -17,7 +18,7 @@ import java.util.List;
 public class ReservationService {
     public List<Reservation> findAll() {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            return new ReservationRepository(session).findAll();
+            return new ReservationRepository(session).findAllWithDetails();
         }
     }
 
@@ -80,6 +81,35 @@ public class ReservationService {
             if (chambre != null) {
                 chambre.setEstReserve(false);
                 new ChambreRepository(session).update(chambre);
+            }
+            transaction.commit();
+        } catch (Exception exception) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            throw exception;
+        }
+    }
+
+    public void validateReservation(Long reservationId) {
+        Transaction transaction = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            ReservationRepository repository = new ReservationRepository(session);
+            Reservation reservation = repository.findById(reservationId);
+            if (reservation == null) {
+                throw new IllegalArgumentException("Réservation introuvable.");
+            }
+            if (reservation.getStatut() == ReservationStatut.CONFIRMEE) {
+                throw new IllegalArgumentException("La réservation est déjà confirmée.");
+            }
+            validateReservation(reservation, session);
+            reservation.setStatut(ReservationStatut.CONFIRMEE);
+            repository.update(reservation);
+
+            FactureService factureService = new FactureService();
+            if (new FactureRepository(session).findByReservationId(reservationId) == null) {
+                factureService.generateForReservation(session, reservationId, "ESPECES");
             }
             transaction.commit();
         } catch (Exception exception) {

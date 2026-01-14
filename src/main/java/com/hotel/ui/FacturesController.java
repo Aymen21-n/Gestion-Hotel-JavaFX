@@ -19,6 +19,8 @@ public class FacturesController {
     @FXML
     private TableColumn<Facture, String> reservationColumn;
     @FXML
+    private TableColumn<Facture, String> clientColumn;
+    @FXML
     private TableColumn<Facture, String> dateColumn;
     @FXML
     private TableColumn<Facture, String> montantColumn;
@@ -34,6 +36,7 @@ public class FacturesController {
                 data.getValue().getReservation() != null
                         ? String.valueOf(data.getValue().getReservation().getIdReservation())
                         : ""));
+        clientColumn.setCellValueFactory(data -> new SimpleStringProperty(formatClientName(data.getValue())));
         dateColumn.setCellValueFactory(data -> new SimpleStringProperty(String.valueOf(data.getValue().getDateFacture())));
         montantColumn.setCellValueFactory(data -> new SimpleStringProperty(String.valueOf(data.getValue().getMontantTotal())));
         modePaiementColumn.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getModePaiement()));
@@ -45,7 +48,7 @@ public class FacturesController {
         Optional<Facture> result = showFactureDialog();
         result.ifPresent(facture -> {
             try {
-                factureService.generateFacture(facture.getReservation().getIdReservation(), facture.getModePaiement());
+                factureService.generateForReservation(facture.getReservation().getIdReservation(), facture.getModePaiement());
                 refreshTable();
                 showAlert(Alert.AlertType.INFORMATION, "Succès", "Facture générée.");
             } catch (Exception exception) {
@@ -64,8 +67,7 @@ public class FacturesController {
         Reservation reservation = selected.getReservation();
         String details = "Facture n° " + selected.getIdFacture() + "\n" +
                 "Réservation: " + (reservation != null ? reservation.getIdReservation() : "-") + "\n" +
-                "Client: " + (reservation != null && reservation.getClient() != null
-                ? reservation.getClient().getNom() + " " + reservation.getClient().getPrenom() : "-") + "\n" +
+                "Client: " + (reservation != null ? formatClientName(selected) : "-") + "\n" +
                 "Chambre: " + (reservation != null && reservation.getChambre() != null
                 ? reservation.getChambre().getNumero() : "-") + "\n" +
                 "Montant: " + selected.getMontantTotal() + "\n" +
@@ -120,6 +122,14 @@ public class FacturesController {
 
     private void refreshTable() {
         factureTable.getItems().setAll(factureService.findAll());
+    }
+
+    private String formatClientName(Facture facture) {
+        Reservation reservation = facture.getReservation();
+        if (reservation == null || reservation.getClient() == null) {
+            return "";
+        }
+        return reservation.getClient().getNom() + " " + reservation.getClient().getPrenom();
     }
 
     private void showAlert(Alert.AlertType type, String title, String message) {

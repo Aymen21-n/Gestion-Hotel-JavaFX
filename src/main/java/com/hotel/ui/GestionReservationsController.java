@@ -41,8 +41,7 @@ public class GestionReservationsController {
 
     @FXML
     private void initialize() {
-        clientColumn.setCellValueFactory(data -> new SimpleStringProperty(
-                data.getValue().getClient() != null ? data.getValue().getClient().getNom() : ""));
+        clientColumn.setCellValueFactory(data -> new SimpleStringProperty(formatClientName(data.getValue().getClient())));
         chambreColumn.setCellValueFactory(data -> new SimpleStringProperty(
                 data.getValue().getChambre() != null ? String.valueOf(data.getValue().getChambre().getNumero()) : ""));
         dateDebutColumn.setCellValueFactory(data -> new SimpleStringProperty(String.valueOf(data.getValue().getDateDebut())));
@@ -82,6 +81,21 @@ public class GestionReservationsController {
         }
     }
 
+    @FXML
+    private void onValider() {
+        Reservation selected = reservationTable.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            showAlert(Alert.AlertType.INFORMATION, "Sélection requise", "Veuillez sélectionner une réservation.");
+            return;
+        }
+        try {
+            reservationService.validateReservation(selected.getIdReservation());
+            refreshTable();
+            showAlert(Alert.AlertType.INFORMATION, "Succès", "Réservation confirmée et facture générée.");
+        } catch (Exception exception) {
+            showAlert(Alert.AlertType.ERROR, "Erreur", exception.getMessage());
+        }
+    }
     @FXML
     private void onFiltrer() {
         LocalDate debut = filterDebut.getValue();
@@ -163,6 +177,13 @@ public class GestionReservationsController {
 
     private void refreshTable() {
         reservationTable.getItems().setAll(reservationService.findAll());
+    }
+
+    private String formatClientName(Client client) {
+        if (client == null) {
+            return "";
+        }
+        return client.getNom() + " " + client.getPrenom();
     }
 
     private void showAlert(Alert.AlertType type, String title, String message) {

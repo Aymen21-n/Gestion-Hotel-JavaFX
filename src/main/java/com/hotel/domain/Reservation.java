@@ -19,11 +19,11 @@ public class Reservation {
     @Enumerated(EnumType.STRING)
     private ReservationStatut statut;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "chambre_numero")
     private Chambre chambre;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "client_cin")
     private Client client;
 

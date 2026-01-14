@@ -4,6 +4,7 @@ import com.hotel.domain.Reservation;
 import org.hibernate.Session;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public class ReservationRepository extends BaseRepository<Reservation, Long> {
     public ReservationRepository(Session session) {
@@ -19,5 +20,12 @@ public class ReservationRepository extends BaseRepository<Reservation, Long> {
                 .setParameter("fin", fin)
                 .getSingleResult();
         return count != null && count > 0;
+    }
+
+    public List<Reservation> findAllWithDetails() {
+        return session.createQuery(
+                        "select r from Reservation r left join fetch r.client left join fetch r.chambre",
+                        Reservation.class)
+                .list();
     }
 }

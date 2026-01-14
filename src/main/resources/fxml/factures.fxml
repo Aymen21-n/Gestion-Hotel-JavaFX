@@ -17,6 +17,7 @@
     <TableView fx:id="factureTable" prefHeight="200">
         <columns>
             <TableColumn fx:id="reservationColumn" text="Réservation" />
+            <TableColumn fx:id="clientColumn" text="Client" />
             <TableColumn fx:id="dateColumn" text="Date" />
             <TableColumn fx:id="montantColumn" text="Montant" />
             <TableColumn fx:id="modePaiementColumn" text="Mode de paiement" />

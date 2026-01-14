@@ -32,5 +32,6 @@
     <HBox spacing="6">
         <Button text="Créer" onAction="#onCreer" />
         <Button text="Annuler" onAction="#onAnnuler" />
+        <Button text="Valider" onAction="#onValider" />
     </HBox>
 </VBox>
