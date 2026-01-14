@@ -18,6 +18,7 @@ public final class DataInitializer {
     public static void initialize() {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             Transaction transaction = session.beginTransaction();
+            ensureSchema(session);
 
             HotelRepository hotelRepository = new HotelRepository(session);
             AdministrateurRepository administrateurRepository = new AdministrateurRepository(session);
@@ -70,5 +71,12 @@ public final class DataInitializer {
 
             transaction.commit();
         }
+    }
+
+    private static void ensureSchema(Session session) {
+        session.createNativeQuery("""
+                IF COL_LENGTH('services', 'prix') IS NULL
+                ALTER TABLE services ADD prix FLOAT NOT NULL DEFAULT 0
+                """).executeUpdate();
     }
 }
