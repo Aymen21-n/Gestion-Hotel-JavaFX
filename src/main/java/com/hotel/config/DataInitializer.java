@@ -78,5 +78,16 @@ public final class DataInitializer {
                 IF COL_LENGTH('services', 'prix') IS NULL
                 ALTER TABLE services ADD prix FLOAT NOT NULL DEFAULT 0
                 """).executeUpdate();
+        session.createNativeQuery("""
+                DECLARE @constraintName NVARCHAR(200);
+                SELECT @constraintName = cc.name
+                FROM sys.check_constraints cc
+                JOIN sys.columns c ON c.object_id = cc.parent_object_id AND c.column_id = cc.parent_column_id
+                WHERE cc.parent_object_id = OBJECT_ID('reservations') AND c.name = 'statut';
+                IF @constraintName IS NOT NULL
+                    EXEC('ALTER TABLE reservations DROP CONSTRAINT ' + @constraintName);
+                ALTER TABLE reservations ADD CONSTRAINT CK_reservations_statut
+                    CHECK (statut IN ('EN_COURS', 'CONFIRMEE', 'ANNULEE', 'TERMINEE'));
+                """).executeUpdate();
     }
 }
