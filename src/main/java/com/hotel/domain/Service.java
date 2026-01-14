@@ -15,6 +15,7 @@ public abstract class Service {
     private String nomService;
     private String horaireOuverture;
     private String horaireFermeture;
+    @Column(nullable = false, columnDefinition = "float default 0")
     private double prix;
 
     @ManyToOne
