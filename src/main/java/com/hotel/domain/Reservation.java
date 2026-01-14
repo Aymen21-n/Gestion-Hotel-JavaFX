@@ -24,8 +24,8 @@ public class Reservation {
     @JoinColumn(name = "chambre_numero")
     private Chambre chambre;
 
-    @ManyToOne
-    @JoinColumn(name = "client_cin")
+    @OneToOne
+    @JoinColumn(name = "client_cin", unique = true)
     private Client client;
 
     @OneToOne(mappedBy = "reservation", cascade = CascadeType.ALL)

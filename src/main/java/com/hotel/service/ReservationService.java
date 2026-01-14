@@ -35,7 +35,7 @@ public class ReservationService {
             ReservationRepository reservationRepository = new ReservationRepository(session);
             List<Chambre> chambres = new ChambreRepository(session).findAll();
             return chambres.stream()
-                    .filter(chambre -> !reservationRepository.hasDateConflict(chambre.getNumero().longValue(), dateDebut, dateFin))
+                    .filter(chambre -> !reservationRepository.hasDateConflict(chambre.getNumero().longValue(), dateDebut, dateFin, null))
                     .toList();
         }
     }
@@ -146,7 +146,7 @@ public class ReservationService {
 
         ReservationRepository repository = new ReservationRepository(session);
         if (repository.hasDateConflict(reservation.getChambre().getNumero().longValue(),
-                reservation.getDateDebut(), reservation.getDateFin())) {
+                reservation.getDateDebut(), reservation.getDateFin(), reservation.getIdReservation())) {
             throw new IllegalArgumentException("La chambre est déjà réservée pour cette période.");
         }
     }

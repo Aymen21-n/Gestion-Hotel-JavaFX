@@ -11,15 +11,21 @@ public class ReservationRepository extends BaseRepository<Reservation, Long> {
         super(session, Reservation.class);
     }
 
-    public boolean hasDateConflict(Long chambreNumero, LocalDate debut, LocalDate fin) {
-        Long count = session.createQuery(
-                        "select count(r) from Reservation r where r.chambre.numero = :numero " +
-                                "and r.dateFin > :debut and r.dateDebut < :fin " +
-                                "and r.statut <> com.hotel.domain.ReservationStatut.ANNULEE", Long.class)
+    public boolean hasDateConflict(Long chambreNumero, LocalDate debut, LocalDate fin, Long excludeReservationId) {
+        String baseQuery = "select count(r) from Reservation r where r.chambre.numero = :numero " +
+                "and r.dateFin > :debut and r.dateDebut < :fin " +
+                "and r.statut <> com.hotel.domain.ReservationStatut.ANNULEE";
+        if (excludeReservationId != null) {
+            baseQuery += " and r.idReservation <> :excludeId";
+        }
+        var query = session.createQuery(baseQuery, Long.class)
                 .setParameter("numero", chambreNumero)
                 .setParameter("debut", debut)
-                .setParameter("fin", fin)
-                .getSingleResult();
+                .setParameter("fin", fin);
+        if (excludeReservationId != null) {
+            query.setParameter("excludeId", excludeReservationId);
+        }
+        Long count = query.getSingleResult();
         return count != null && count > 0;
     }
 
