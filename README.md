@@ -1,16 +1,16 @@
 # Gestion d'Hôtel et Services (JavaFX + Hibernate)
 
-Application de gestion hôtelière en Java 21 avec interface JavaFX (FXML) et persistance MySQL via Hibernate/JPA.
+Application de gestion hôtelière en Java 21 avec interface JavaFX (FXML) et persistance SQL Server via Hibernate/JPA.
 
 ## Prérequis
 - Java 21
 - Maven 3.9+
-- MySQL 8+
+- SQL Server 2019+
 
 ## Configuration Base de Données
 1. Créer la base :
    ```sql
-   CREATE DATABASE hotel_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+   CREATE DATABASE hotel_db;
    ```
 2. Mettre à jour les identifiants dans `src/main/resources/hibernate.cfg.xml` :
    - `hibernate.connection.url`

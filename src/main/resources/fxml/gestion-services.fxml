@@ -2,29 +2,29 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" spacing="10">
+<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.hotel.ui.GestionServicesController" spacing="10">
     <padding>
         <Insets top="16" right="16" bottom="16" left="16"/>
     </padding>
     <Label text="Gestion Services" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
-    <ComboBox promptText="Type de service" />
-    <TableView prefHeight="200">
+    <TableView fx:id="serviceTable" prefHeight="200">
         <columns>
-            <TableColumn text="Nom" />
-            <TableColumn text="Ouverture" />
-            <TableColumn text="Fermeture" />
-            <TableColumn text="Type" />
+            <TableColumn fx:id="nomColumn" text="Nom" />
+            <TableColumn fx:id="ouvertureColumn" text="Ouverture" />
+            <TableColumn fx:id="fermetureColumn" text="Fermeture" />
+            <TableColumn fx:id="typeColumn" text="Type" />
         </columns>
     </TableView>
-    <VBox spacing="6">
-        <Button text="Ajouter" />
-        <Button text="Modifier" />
-        <Button text="Supprimer" />
-    </VBox>
+    <HBox spacing="6">
+        <Button text="Ajouter" onAction="#onAjouter" />
+        <Button text="Modifier" onAction="#onModifier" />
+        <Button text="Supprimer" onAction="#onSupprimer" />
+    </HBox>
 </VBox>

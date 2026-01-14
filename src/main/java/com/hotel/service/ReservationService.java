@@ -1,19 +1,96 @@
 package com.hotel.service;
 
+import com.hotel.config.HibernateUtil;
 import com.hotel.domain.Chambre;
+import com.hotel.domain.Client;
 import com.hotel.domain.Reservation;
+import com.hotel.domain.ReservationStatut;
+import com.hotel.repository.ChambreRepository;
+import com.hotel.repository.ClientRepository;
 import com.hotel.repository.ReservationRepository;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public class ReservationService {
-    private final ReservationRepository repository;
-
-    public ReservationService(ReservationRepository repository) {
-        this.repository = repository;
+    public List<Reservation> findAll() {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            return new ReservationRepository(session).findAll();
+        }
     }
 
-    public void validateReservation(Reservation reservation) {
+    public List<Chambre> listChambresDisponibles(LocalDate dateDebut, LocalDate dateFin) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            ReservationRepository reservationRepository = new ReservationRepository(session);
+            List<Chambre> chambres = new ChambreRepository(session).findAll();
+            return chambres.stream()
+                    .filter(chambre -> !reservationRepository.hasDateConflict(chambre.getNumero().longValue(), dateDebut, dateFin))
+                    .toList();
+        }
+    }
+
+    public Reservation createReservation(String clientCin, Integer chambreNumero, LocalDate dateDebut,
+                                         LocalDate dateFin, String typeReservation) {
+        ValidationUtils.requireNotBlank(typeReservation, "Le type de réservation est obligatoire.");
+        Transaction transaction = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            Client client = new ClientRepository(session).findById(clientCin);
+            if (client == null) {
+                throw new IllegalArgumentException("Client introuvable.");
+            }
+            Chambre chambre = new ChambreRepository(session).findById(chambreNumero);
+            if (chambre == null) {
+                throw new IllegalArgumentException("Chambre introuvable.");
+            }
+
+            Reservation reservation = new Reservation(dateDebut, dateFin, typeReservation, ReservationStatut.EN_COURS);
+            reservation.setClient(client);
+            reservation.setChambre(chambre);
+            validateReservation(reservation, session);
+
+            new ReservationRepository(session).save(reservation);
+            chambre.setEstReserve(true);
+            new ChambreRepository(session).update(chambre);
+
+            transaction.commit();
+            return reservation;
+        } catch (Exception exception) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            throw exception;
+        }
+    }
+
+    public void cancelReservation(Long reservationId) {
+        Transaction transaction = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            ReservationRepository repository = new ReservationRepository(session);
+            Reservation reservation = repository.findById(reservationId);
+            if (reservation == null) {
+                throw new IllegalArgumentException("Réservation introuvable.");
+            }
+            reservation.setStatut(ReservationStatut.ANNULEE);
+            repository.update(reservation);
+            Chambre chambre = reservation.getChambre();
+            if (chambre != null) {
+                chambre.setEstReserve(false);
+                new ChambreRepository(session).update(chambre);
+            }
+            transaction.commit();
+        } catch (Exception exception) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            throw exception;
+        }
+    }
+
+    public void validateReservation(Reservation reservation, Session session) {
         if (reservation.getDateDebut() == null || reservation.getDateFin() == null) {
             throw new IllegalArgumentException("Les dates de réservation sont obligatoires.");
         }
@@ -24,13 +101,10 @@ public class ReservationService {
             throw new IllegalArgumentException("Une chambre doit être sélectionnée.");
         }
 
-        Chambre chambre = reservation.getChambre();
-        if (!isChambreDisponible(chambre.getNumero().longValue(), reservation.getDateDebut(), reservation.getDateFin())) {
+        ReservationRepository repository = new ReservationRepository(session);
+        if (repository.hasDateConflict(reservation.getChambre().getNumero().longValue(),
+                reservation.getDateDebut(), reservation.getDateFin())) {
             throw new IllegalArgumentException("La chambre est déjà réservée pour cette période.");
         }
-    }
-
-    public boolean isChambreDisponible(Long chambreNumero, LocalDate dateDebut, LocalDate dateFin) {
-        return !repository.hasDateConflict(chambreNumero, dateDebut, dateFin);
     }
 }

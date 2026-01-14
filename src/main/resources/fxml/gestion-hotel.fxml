@@ -5,25 +5,27 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" spacing="10">
+<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.hotel.ui.GestionHotelController" spacing="10">
     <padding>
         <Insets top="16" right="16" bottom="16" left="16"/>
     </padding>
     <Label text="Gestion Hôtel" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
-    <TableView prefHeight="200">
+    <TableView fx:id="hotelTable" prefHeight="200">
         <columns>
-            <TableColumn text="Nom" />
-            <TableColumn text="Adresse" />
-            <TableColumn text="Note" />
-            <TableColumn text="Téléphone" />
-            <TableColumn text="Nb chambres" />
+            <TableColumn fx:id="nomColumn" text="Nom" />
+            <TableColumn fx:id="adresseColumn" text="Adresse" />
+            <TableColumn fx:id="noteColumn" text="Note" />
+            <TableColumn fx:id="telephoneColumn" text="Téléphone" />
+            <TableColumn fx:id="nbChambresColumn" text="Nb chambres" />
         </columns>
     </TableView>
-    <VBox spacing="6">
-        <Button text="Ajouter" />
-        <Button text="Modifier" />
-        <Button text="Supprimer" />
-    </VBox>
+    <HBox spacing="6">
+        <Button text="Ajouter" onAction="#onAjouter" />
+        <Button text="Modifier" onAction="#onModifier" />
+        <Button text="Supprimer" onAction="#onSupprimer" />
+    </HBox>
 </VBox>
