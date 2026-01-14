@@ -24,7 +24,6 @@
         </columns>
     </TableView>
     <HBox spacing="6">
-        <Button text="Générer" onAction="#onGenerer" />
         <Button text="Afficher" onAction="#onAfficher" />
     </HBox>
 </VBox>

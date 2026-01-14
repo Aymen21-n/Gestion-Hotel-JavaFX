@@ -89,5 +89,20 @@ public final class DataInitializer {
                 ALTER TABLE reservations ADD CONSTRAINT CK_reservations_statut
                     CHECK (statut IN ('EN_COURS', 'CONFIRMEE', 'ANNULEE', 'TERMINEE'));
                 """).executeUpdate();
+        session.createNativeQuery("""
+                IF EXISTS (
+                    SELECT 1
+                    FROM sys.indexes i
+                    WHERE i.name = 'UK_dsj0rl67hdt67uk6n5qu3p9ry'
+                    AND i.object_id = OBJECT_ID('reservations')
+                )
+                DROP INDEX UK_dsj0rl67hdt67uk6n5qu3p9ry ON reservations
+                """).executeUpdate();
+        session.createNativeQuery("""
+                DELETE f
+                FROM factures f
+                JOIN reservations r ON r.idReservation = f.reservation_id
+                WHERE r.statut = 'ANNULEE'
+                """).executeUpdate();
     }
 }

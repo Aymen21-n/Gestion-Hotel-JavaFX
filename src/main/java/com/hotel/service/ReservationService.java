@@ -91,6 +91,9 @@ public class ReservationService {
                 chambre.setEstReserve(false);
                 new ChambreRepository(session).update(chambre);
             }
+            session.createMutationQuery("delete from Facture f where f.reservation.idReservation = :id")
+                    .setParameter("id", reservationId)
+                    .executeUpdate();
             transaction.commit();
         } catch (Exception exception) {
             if (transaction != null) {
