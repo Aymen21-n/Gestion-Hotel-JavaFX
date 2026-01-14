@@ -1,0 +1,30 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD//EN"
+        "https://hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <property name="hibernate.connection.driver_class">com.microsoft.sqlserver.jdbc.SQLServerDriver</property>
+        <property name="hibernate.connection.url">jdbc:sqlserver://localhost:1433;databaseName=hotel_db;encrypt=false;trustServerCertificate=true</property>
+        <property name="hibernate.connection.username">sa</property>
+        <property name="hibernate.connection.password">VotreMotDePasse</property>
+        <property name="hibernate.dialect">org.hibernate.dialect.SQLServerDialect</property>
+        <property name="hibernate.hbm2ddl.auto">update</property>
+        <property name="hibernate.show_sql">true</property>
+        <property name="hibernate.format_sql">true</property>
+
+        <mapping class="com.hotel.domain.Administrateur"/>
+        <mapping class="com.hotel.domain.Hotel"/>
+        <mapping class="com.hotel.domain.Chambre"/>
+        <mapping class="com.hotel.domain.Employe"/>
+        <mapping class="com.hotel.domain.Client"/>
+        <mapping class="com.hotel.domain.Service"/>
+        <mapping class="com.hotel.domain.Spa"/>
+        <mapping class="com.hotel.domain.Restauration"/>
+        <mapping class="com.hotel.domain.Piscine"/>
+        <mapping class="com.hotel.domain.SalleDeSport"/>
+        <mapping class="com.hotel.domain.Club"/>
+        <mapping class="com.hotel.domain.Reservation"/>
+        <mapping class="com.hotel.domain.Facture"/>
+    </session-factory>
+</hibernate-configuration>

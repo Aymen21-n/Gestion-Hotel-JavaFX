@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.hotel.ui.DashboardController" fx:id="root">
+    <left>
+        <VBox spacing="8" style="-fx-background-color: #1f2937;" prefWidth="200">
+            <padding>
+                <Insets top="20" right="10" bottom="20" left="10"/>
+            </padding>
+            <Label text="Menu" style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold;"/>
+            <Button text="Gestion Hôtel" onAction="#openHotel" />
+            <Button text="Gestion Chambres" onAction="#openChambres" />
+            <Button text="Gestion Clients" onAction="#openClients" />
+            <Button text="Gestion Employés" onAction="#openEmployes" />
+            <Button text="Gestion Services" onAction="#openServices" />
+            <Button text="Réservations" onAction="#openReservations" />
+            <Button text="Factures" onAction="#openFactures" />
+        </VBox>
+    </left>
+    <center>
+        <HBox alignment="CENTER" spacing="10">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+            <Label fx:id="welcomeLabel" />
+        </HBox>
+    </center>
+</BorderPane>
